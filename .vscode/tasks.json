@@ -1,0 +1,30 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "C/C++: g++ build ArchTracer",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-g",
+				"~/Dev/ArchTracer/Main.cpp",
+				"-L/usr/lib/x86-64-linux-gnu/",
+				"-lsfml-graphics",
+				"-lsfml-window",
+				"-lsfml-system",
+				"-o",
+				"~/Dev/ArchTracer/ArchTracer"
+			],
+			"options": {
+				"cwd": "/usr/bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
