@@ -3,13 +3,6 @@
 #include <thread>
 #include <SFML/Graphics.hpp>
 
-void UpdateImageEveryXMilliseconds(int seconds) {
-    
-    for(int i = 0; i < 10; i++) {
-        std::cout << "Update Image" << "\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-}
 
 void RaytraceImage(int dimX, int dimY, int arrSize, sf::Uint8 *arrPtr) {
 
@@ -48,15 +41,11 @@ int main() {
     bool bIsFinished = false;
 
     RaytraceImage(nx, ny, pxlNumber, pxlPtr);
-    
-
-    //std::thread display_thread(UpdateImageEveryXMilliseconds, 500);
-    //std::thread compute_thread(RaytraceImage())
 
 
-    sf::RenderWindow    window(sf::VideoMode(nx, ny), "test");
+    sf::RenderWindow window(sf::VideoMode(nx, ny), "test");
     window.setFramerateLimit(30);
-    sf::Texture          texture;
+    sf::Texture texture;
     texture.create(nx, ny);
     sf::Sprite sprite(texture);
 
@@ -64,6 +53,10 @@ int main() {
 
     for(int i = 0; i < pxlNumber; i++) {
         std::cout << " entry num. " << i << " is " << *(pxlPtr + i) << "\n";
+    }
+
+    for(int i = 0; i < pxlNumber; i++) {
+        pixels[i] = int(255);
     }
 
 
@@ -81,28 +74,5 @@ int main() {
         window.display();
     }
     
-
-
-
-   
-    /*sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }*/
-    
-
     return 0;
 }
