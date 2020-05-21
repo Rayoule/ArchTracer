@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 
-void RaytraceImage(int dimX, int dimY, int arrSize, sf::Uint8 *arrPtr) {
+void RaytraceImage(int dimX, int dimY, sf::Uint8 *arrPtr) {
 
     std::cout << "P3\n" << dimX << " " << dimY << "\n255\n";
     for (int j = dimY-1; j >= 0; j--) {
@@ -37,28 +37,29 @@ int main() {
     int pxlNumber = ny * nx * 4;
     sf::Uint8 pixels[pxlNumber];
     sf::Uint8 *pxlPtr;
-    pxlPtr = pixels;
+    pxlPtr = &pixels[0];
     bool bIsFinished = false;
-
-    RaytraceImage(nx, ny, pxlNumber, pxlPtr);
-
-
+    
+    
     sf::RenderWindow window(sf::VideoMode(nx, ny), "test");
     window.setFramerateLimit(30);
     sf::Texture texture;
     texture.create(nx, ny);
     sf::Sprite sprite(texture);
 
+    RaytraceImage(nx, ny, pxlPtr);
+
     texture.update(pxlPtr);
 
-    for(int i = 0; i < pxlNumber; i++) {
+    /*for(int i = 0; i < pxlNumber; i++) {
         std::cout << " entry num. " << i << " is " << *(pxlPtr + i) << "\n";
     }
 
     for(int i = 0; i < pxlNumber; i++) {
-        pixels[i] = int(255);
+        *(pxlPtr + i) = sf::Uint8(128);
     }
 
+    texture.update(pxlPtr);*/
 
     while(window.isOpen()) {
 
