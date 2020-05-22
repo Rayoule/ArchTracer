@@ -2,6 +2,7 @@
 #include <chrono>
 #include <thread>
 #include <SFML/Graphics.hpp>
+#include "include/Vec3.h"
 
 
 void RaytraceImage(int dimX, int dimY, sf::Uint8 *arrPtr) {
@@ -9,23 +10,19 @@ void RaytraceImage(int dimX, int dimY, sf::Uint8 *arrPtr) {
     std::cout << "P3\n" << dimX << " " << dimY << "\n255\n";
     for (int j = dimY-1; j >= 0; j--) {
         for (int i = 0; i < dimX; i++) {
-            float r = float(i) / float(dimX);
-            float g = float(j) / float(dimY);
-            float b = 0.2;
-            int ir = int(255.99*r);
-            int ig = int(255.99*g);
-            int ib = int(255.99*b);
+
+            vec3 col(float(i) / float(dimX), float(j) / float(dimY), 0.2);
+            int ir = int(255.99 * col[0]);
+            int ig = int(255.99 * col[1]);
+            int ib = int(255.99 * col[2]);
             std::cout << ir << " " << ig << " " << ib << "\n";
 
-            int idx = i * j * 4;
-            /*(*arrPtr)[idx] = ir;
-            (*arrPtr)[idx + 1] = ig;
-            (*arrPtr)[idx + 2] = ib;
-            (*arrPtr)[idx + 3] = 0;*/
+            int idx = ((dimX * j) + i) * 4;
+
             *(arrPtr + idx) = sf::Uint8(ir);
             *(arrPtr + idx + 1) = sf::Uint8(ig);
             *(arrPtr + idx + 2) = sf::Uint8(ib);
-            *(arrPtr + idx + 3) = sf::Uint8(0);
+            *(arrPtr + idx + 3) = sf::Uint8(255);
         }
     }
 }
@@ -37,7 +34,7 @@ int main() {
     int pxlNumber = ny * nx * 4;
     sf::Uint8 pixels[pxlNumber];
     sf::Uint8 *pxlPtr;
-    pxlPtr = &pixels[0];
+    pxlPtr = pixels;
     bool bIsFinished = false;
     
     
@@ -51,15 +48,8 @@ int main() {
 
     texture.update(pxlPtr);
 
-    /*for(int i = 0; i < pxlNumber; i++) {
-        std::cout << " entry num. " << i << " is " << *(pxlPtr + i) << "\n";
-    }
+    //std::cout << " vec3(1,1,1) + vec3(-1, -0.5, 23) = " << 
 
-    for(int i = 0; i < pxlNumber; i++) {
-        *(pxlPtr + i) = sf::Uint8(128);
-    }
-
-    texture.update(pxlPtr);*/
 
     while(window.isOpen()) {
 

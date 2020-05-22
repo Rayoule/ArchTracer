@@ -1,5 +1,10 @@
 {
 	"version": "2.0.0",
+	"configurations": [
+		{
+			"includePath": ["~/Dev/ArchTracer/include"]
+		}
+	],
 	"tasks": [
 		{
 			"type": "shell",
@@ -7,7 +12,8 @@
 			"command": "/usr/bin/g++",
 			"args": [
 				"-g",
-				"~/Dev/ArchTracer/Main.cpp",
+				"~/Dev/ArchTracer/*.cpp",
+				"-Idir ~/Dev/ArchTracer/include",
 				"-L/usr/lib/x86-64-linux-gnu/",
 				"-lsfml-graphics",
 				"-lsfml-window",
