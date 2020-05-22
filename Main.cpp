@@ -3,6 +3,7 @@
 #include <thread>
 #include <SFML/Graphics.hpp>
 #include "include/Vec3.h"
+#include "include/Ray.h"
 
 
 void RaytraceImage(int dimX, int dimY, sf::Uint8 *arrPtr) {

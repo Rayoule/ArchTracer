@@ -13,7 +13,7 @@
 			"args": [
 				"-g",
 				"~/Dev/ArchTracer/*.cpp",
-				"-Idir ~/Dev/ArchTracer/include",
+				"-I ~/Dev/ArchTracer/**",
 				"-L/usr/lib/x86-64-linux-gnu/",
 				"-lsfml-graphics",
 				"-lsfml-window",
