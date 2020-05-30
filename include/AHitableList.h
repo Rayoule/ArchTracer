@@ -2,30 +2,38 @@
 
 #include "AHitable.h"
 
+#include <memory>
+#include <vector>
+
+using std::shared_ptr;
+using std::make_shared;
+
 class AHitableList: public AHitable {
+    public:
+        AHitableList() {}
+        AHitableList(shared_ptr<AHitable> object) { add(object); }
 
-public:
-    AHitableList() {}
-    AHitableList(AHitable **l, int n) { list = l; list_size = n; }
-    virtual bool Hit(const ARay& r, float t_min, float t_max, SHitRecord& rec) const;
-    AHitable **list;
-    int list_size;
+        void clear() { objects.clear(); }
+        void add(shared_ptr<AHitable> object) { objects.push_back(object); }
 
+        virtual bool Hit(const ARay& r, float tmin, float tmax, SHitRecord& rec) const;
+
+    public:
+        std::vector<shared_ptr<AHitable>> objects;
 };
 
 bool AHitableList::Hit(const ARay& r, float t_min, float t_max, SHitRecord& rec) const {
-
     SHitRecord temp_rec;
-    bool bHitAnything = false;
-    double closest_so_far = t_max;
+    bool hit_anything = false;
+    auto closest_so_far = t_max;
 
-    for (int i = 0; i < list_size; i++) {
-        if (list[i]->Hit(r, t_min, closest_so_far, temp_rec)) {
-            bHitAnything = true;
+    for (const auto& object : objects) {
+        if (object->Hit(r, t_min, closest_so_far, temp_rec)) {
+            hit_anything = true;
             closest_so_far = temp_rec.t;
             rec = temp_rec;
         }
     }
 
-    return bHitAnything;
+    return hit_anything;
 }

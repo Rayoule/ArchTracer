@@ -34,7 +34,12 @@ public:
         return sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]); }
     inline float squared_length() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2]; }
-    inline void make_unit_vector();
+    //inline void make_unit_vector();
+    inline void make_unit_vector() {
+        float k = 1.0 / sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);
+        e[0] *= k; e[1] *= k; e[2] *= k;
+    }
+
     static vec3 unit_vector(vec3 v);
 
     float e[3];
@@ -137,4 +142,24 @@ inline vec3 cross(const vec3 &v1, const vec3 &v2) {
 
 inline vec3 unit_vector(vec3 v) {
     return v / v.length();
+}
+
+static vec3 Random_in_unit_sphere() {
+    vec3 p;
+    do {
+        p = 2.0*vec3(drand48(), drand48(), drand48()) - vec3(1,1,1);
+    } while (p.squared_length() >= 1.0);
+    return p;
+}
+
+static vec3 Reflect(const vec3& v, const vec3& n) {
+    return v - 2*dot(v,n)*n;
+}
+
+inline static vec3 Random() {
+    return vec3(random_float(), random_float(), random_float());
+}
+
+inline static vec3 Random(double min, double max) {
+    return vec3(random_float(min,max), random_float(min,max), random_float(min,max));
 }

@@ -2,25 +2,33 @@
 #include <chrono>
 #include <thread>
 #include <SFML/Graphics.hpp>
-#include "include/Vec3.h"
-#include "include/ARay.h"
+#include "include/GeneralHeader.h"
 #include "include/ASphere.h"
 #include "include/AHitableList.h"
 #include "include/ACamera.h"
+#include "include/AAntiAliasing.h"
+#include "include/AMaterial.h"
 
 
-vec3 Color(const ARay& r, AHitable *world) {
 
+vec3 RayColor(const ARay& r, const AHitable& world, int depth) {
     SHitRecord rec;
-    if(world->Hit(r, 0.0, MAXFLOAT, rec)){
-        return 0.5*vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
-    }else {
 
-        // Background Color
-        vec3 unit_direction = unit_vector(r.direction());
-        float f = 0.5*(unit_direction.y() + 1.0);
-        return (1.0-f)*vec3(1.0, 1.0, 1.0) + f*vec3(0.5, 0.7, 1.0);
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if (depth <= 0)
+        return vec3(0,0,0);
+
+    if (world.Hit(r, 0.001, infinity, rec)) {
+        ARay scattered;
+        vec3 attenuation;
+        if (rec.mat_ptr->Scatter(r, rec, attenuation, scattered))
+            return attenuation * RayColor(scattered, world, depth-1);
+        return vec3(0,0,0);
     }
+
+    vec3 unit_direction = unit_vector(r.direction());
+    auto t = 0.5*(unit_direction.y() + 1.0);
+    return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
 }
 
 
@@ -32,13 +40,15 @@ void RaytraceImage(int nx, int ny, sf::Uint8 *arrPtr) {
 int main() {
 
     // Setup Variables
-    unsigned int nx = 800;
-    unsigned int ny = 400;
-    int ns = 100;
+    const int nx = 400;
+    const int ny = 200;
+    const int max_depth = 50;
+    int samples_per_pixels = 50;
     int pxlNumber = ny * nx * 4;
     sf::Uint8 pixels[pxlNumber];
     sf::Uint8 *pxlPtr;
     pxlPtr = pixels;
+    
     
     // Creates Texture to display
     sf::RenderWindow window(sf::VideoMode(nx, ny), "test");
@@ -49,12 +59,21 @@ int main() {
 
     // Camera
     ACamera cam;
+    // AntiAliasing
+    AAntiAliasing AA;
 
-    // START Raytrace Image -------
-    AHitable *list[2];
-    list[0] = new ASphere(vec3(0,0,-1), 0.5);
-    list[1] = new ASphere(vec3(0,-100.5,-1), 100);
-    AHitable *world = new AHitableList(list, 2);
+    // Defines the world
+    AHitableList world;
+
+    world.add(make_shared<ASphere>(
+        vec3(0,0,-1), 0.5, make_shared<lambertian>(vec3(0.7, 0.3, 0.3))));
+
+    world.add(make_shared<ASphere>(
+        vec3(0,-100.5,-1), 100, make_shared<lambertian>(vec3(0.8, 0.8, 0.0))));
+
+    world.add(make_shared<ASphere>(vec3(1,0,-1), 0.5, make_shared<AMetal>(vec3(0.8,0.6,0.2), 0.0)));
+    world.add(make_shared<ASphere>(vec3(-1,0,-1), 0.5, make_shared<AMetal>(vec3(0.8,0.8,0.8), 0.0)));
+
 
     for (int j = 0; j < ny; j++) {
 
@@ -62,16 +81,18 @@ int main() {
 
             vec3 col(0,0,0);
 
-            for(int s = 0; s < ns; s++) {
-                float u = float(i + drand48()) / float(nx);
-                float v = 1.0 - (float(j + drand48()) / float(ny));
+            for(int s = 0; s < samples_per_pixels; s++) {
+
+                float u = (float(i) + random_float()) / float(nx);
+                float v = 1.0 - ((float(j) + random_float()) / float(ny));
                 
                 ARay r = cam.GetRay(u,v);
-                vec3 p = r.point_at_parameter(2.0);
-                col += Color(r, world);
+                vec3 p = r.at(2.0);
+                col += RayColor(r, world, max_depth);
             }
 
-            col /= float(ns);
+            col /= float(samples_per_pixels);
+            col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);
